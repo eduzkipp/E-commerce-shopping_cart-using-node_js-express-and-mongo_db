@@ -4,9 +4,24 @@ var router = express.Router();
 var Page = require('../models/page');
 
 
-router.get('/pages', function (req, res) {
-  res.send("admin-area");
-})
+/*router.get('/', function (req, res) {
+  Page.find({}).sort({sorting: 1}).exec(function (err, pages) {
+    res.render('admin/pages', {
+        pages: pages
+    });
+});
+});
+*/
+router.get('/', async function (req, res) {
+  try {
+    const pages = await Page.find({}).sort({sorting: 1});
+    res.render('admin/pages', { pages });
+  } catch (err) {
+    console.log(err);
+    req.flash('danger', 'An error occurred');
+    res.redirect('/admin');
+  }
+});
 
 //get add page
 router.get('/add-page', function (req, res) {
