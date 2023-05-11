@@ -19,4 +19,4 @@ var pageSchema=mongoose.Schema({
       }
 
 });
-var page=module.exports=mongoose.model('page',pageSchema);
+var Page=module.exports=mongoose.model('Page',pageSchema);
