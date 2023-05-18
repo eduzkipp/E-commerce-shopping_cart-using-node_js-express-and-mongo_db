@@ -110,4 +110,8 @@ router.post('/add-page', function (req, res) {
 
 
 });
+
+router.post('/reorder-pages', async function (req, res) {
+ console.log(req.body);
+});
 module.exports = router;
