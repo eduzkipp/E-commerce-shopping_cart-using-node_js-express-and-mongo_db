@@ -1,16 +1,29 @@
-
-
-console.log("entering the loop...");
-outerloop:
-for( var x=0;x<5;x++){
-console.log("outerloop: "+x+"<br />");
-
-innerloop:
-for(var j=0;j<5;j++){
-    if(j>3) break;
-    if(x==2) break innerloop;
-    if(x==4) break outerloop;
-    console.log("innerloop:"+j+"<br />");
+function shortTimeFunction(callback){
+    setTimeout(function(){
+        callback(null, 'resultOfShortTimeFunction');
+    },200);
 }
+
+function mediumTimeFunction(callback){
+    setTimeout(function(){
+        callback(null, 'resultOfmediumTimeFunction')
+    },500);
 }
-console.log("Existing the outer loop..");
+
+function longTimeFunction(callback){
+    setTimeout(function(){
+        callback(null, 'resultOflongTimeFunction')
+    },1000);
+}
+
+async.parallel([
+    shortTimeFunction,
+    mediumTimeFunction,
+    longTimeFunction
+],
+function(err, results){
+    if(err){
+        return console.error(err);
+    }
+    console.log(results);
+});

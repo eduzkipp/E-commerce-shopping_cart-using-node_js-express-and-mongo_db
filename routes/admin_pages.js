@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+
+
 var Page = require('../models/page');
 
 
@@ -14,7 +16,7 @@ var Page = require('../models/page');
 */
 router.get('/', async function (req, res) {
   try {
-    const pages = await Page.find({}).sort({sorting: 1});
+    const pages = await Page.find({}).sort({ sorting: 1 });
     res.render('admin/pages', { pages });
   } catch (err) {
     console.log(err);
@@ -61,50 +63,50 @@ router.post('/add-page', function (req, res) {
     //   if (page) {
     //     req.flash('danger', 'page slug exists choose another');
     //    res.render('admin/add_page', {
- 
+
     //     title: title,
     //      slug: slug,
     //      content: content
- 
+
     //      });
 
     // }
     // else{
 
     // }
-  
- // });
- Page.findOne({ slug: slug })
-  .then(function(existingPage) {
-    if (existingPage) {
-      req.flash('danger', 'page slug exists choose another');
-      return res.render('admin/add_page', {
-        title: title,
-        slug: slug,
-        content: content
+
+    // });
+    Page.findOne({ slug: slug })
+      .then(function (existingPage) {
+        if (existingPage) {
+          req.flash('danger', 'page slug exists choose another');
+          return res.render('admin/add_page', {
+            title: title,
+            slug: slug,
+            content: content
+          });
+        } else {
+          var page = new Page({
+            title: title,
+            slug: slug,
+            content: content,
+            sorting: 0
+          });
+          return page.save().then(function (savedPage) {
+            req.flash('success', 'page added');
+            res.redirect('/admin/pages/pages');
+          });
+        }
+      })
+      .catch(function (err) {
+        console.log(err);
+        req.flash('danger', 'an error occurred');
+        res.redirect('/admin/pages');
       });
-    } else {
-      var page = new Page({
-        title: title,
-        slug: slug,
-        content: content,
-        sorting: 0
-      });
-      return page.save().then(function(savedPage) {
-        req.flash('success', 'page added');
-        res.redirect('/admin/pages/pages');
-      });
-    }
-  })
-  .catch(function(err) {
-    console.log(err);
-    req.flash('danger', 'an error occurred');
-    res.redirect('/admin/pages');
-  });
 
 
 
-      
+
   }
 
 
@@ -112,6 +114,54 @@ router.post('/add-page', function (req, res) {
 });
 
 router.post('/reorder-pages', async function (req, res) {
- console.log(req.body);
+  try {
+    const ids = req.body['id[]'];
+    let count = 0;
+
+    for (const id of ids) {
+      count++;
+
+      const page = await Page.findById(id);
+      page.sorting = count;
+      await page.save();
+    }
+
+    res.send('Pages reordered successfully.');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while reordering pages.');
+  }
 });
-module.exports = router;
+
+/*router.get('/edit-page/:slug', function (req, res) {
+  Page.findOne({ slug: req.params.slug }, function (err, Page) {
+    if (err) return console.log(err);
+    res.render('admin/add_page', {
+      title: Page.Pagetitle,
+      slug: Page.Pageslug,
+      content: Page.Pagecontent,
+      id: Page._id
+    });
+*/
+router.get('/edit-page/:slug', async function (req, res) {
+  try {
+     await Page.findOne({ slug: req.params.slug }).exec();
+    if (!Page) {
+      // Handle case when page is null
+      console.log('Page not found');
+      // You can redirect or render an error page here
+    } else {
+      res.render('admin/add_page', {
+        title: Page.Pagetitle,
+        slug: Page.Pageslug,
+        content: Page.Pagecontent,
+        id: Page._id
+      });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+
+module.exports=router;
